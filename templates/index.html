@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONTRU ESTOQUE — Sistema Corporativo de Gestão de Estoque</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            orange: {
+              50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74',
+              400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
+              800: '#9a3412', 900: '#7c2d12'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons & Chart.js CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TELA DE LOGIN CORPORATIVO (EXIBIDA QUANDO NÃO AUTENTICADO) -->
+  <!-- ========================================================================= -->
+  <div id="screen-login" class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-orange-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-orange-600 shadow-xl shadow-orange-600/30 mb-4">
+        <i data-lucide="boxes" class="w-9 h-9 text-white"></i>
+      </div>
+      <h1 class="text-2xl font-black tracking-tight text-white">CONTRU <span class="text-orange-500">ESTOQUE</span></h1>
+      <p class="mt-1 text-xs text-slate-300">Gestão Integrada de Materiais de Inclusão & Construção Civil</p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
+      <div class="bg-white py-8 px-6 shadow-2xl rounded-2xl border border-slate-100 sm:px-10">
+        <div id="login-error-msg" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg font-medium"></div>
+
+        <form id="form-login" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">E-mail Corporativo</label>
+            <div class="relative">
+              <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+              <input type="email" id="login-email" required placeholder="seu.email@contruestoque.com.br" class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Senha de Acesso</label>
+            <div class="relative">
+              <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+              <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs">
+            <label class="flex items-center text-slate-600">
+              <input type="checkbox" checked class="rounded border-slate-300 text-orange-600 focus:ring-orange-500 mr-2">
+              Lembrar acesso neste terminal
+            </label>
+          </div>
+
+          <button type="submit" id="btn-login-submit" class="w-full py-2.5 px-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs shadow-md shadow-orange-600/20 transition flex items-center justify-center">
+            Entrar no Sistema &rarr;
+          </button>
+        </form>
+
+        <!-- Acesso Rápido para Demonstração (1 Clique) -->
+        <div class="mt-6 pt-5 border-t border-slate-100">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">
+            Acesso Rápido para Homologação (1 Clique)
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="Auth.quickLogin('carlos.admin@contruestoque.com.br', 'Admin@123')" class="p-2 text-left bg-orange-50/70 hover:bg-orange-100/70 border border-orange-200 rounded-lg transition">
+              <div class="text-xs font-bold text-orange-900">Carlos Silva</div>
+              <div class="text-[10px] text-orange-600 font-semibold">Perfil: Administrador</div>
+            </button>
+            <button type="button" onclick="Auth.quickLogin('mariana.gestora@contruestoque.com.br', 'Gestor@123')" class="p-2 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition">
+              <div class="text-xs font-bold text-slate-800">Mariana Souza</div>
+              <div class="text-[10px] text-slate-500 font-semibold">Perfil: Gestor</div>
+            </button>
+            <button type="button" onclick="Auth.quickLogin('roberto.estoque@contruestoque.com.br', 'Estoque@123')" class="p-2 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition">
+              <div class="text-xs font-bold text-slate-800">Roberto Santos</div>
+              <div class="text-[10px] text-slate-500 font-semibold">Perfil: Estoquista</div>
+            </button>
+            <button type="button" onclick="Auth.quickLogin('fernando.financeiro@contruestoque.com.br', 'Financeiro@123')" class="p-2 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition">
+              <div class="text-xs font-bold text-slate-800">Fernando Rocha</div>
+              <div class="text-[10px] text-slate-500 font-semibold">Perfil: Financeiro</div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-4 text-xs text-slate-400">
+        Banco em Nuvem: <b>Supabase (PostgreSQL 15+)</b> • CONTRU ESTOQUE v2.1
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. AMBIENTE DE TRABALHO AUTENTICADO (WORKSPACE) -->
+  <!-- ========================================================================= -->
+  <div id="screen-workspace" class="hidden flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR NAVEGAÇÃO -->
+    <aside id="main-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between z-30 transition-transform duration-300 fixed md:static inset-y-0 left-0 -translate-x-full md:translate-x-0">
+      <div class="flex flex-col h-full">
+        <!-- Logo Marca -->
+        <div class="h-16 flex items-center px-5 border-b border-slate-100 bg-gradient-to-r from-orange-50/50 to-white">
+          <div class="w-9 h-9 rounded-lg bg-orange-600 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-orange-500/30">
+            <i data-lucide="boxes" class="w-5 h-5"></i>
+          </div>
+          <div class="ml-3">
+            <span class="font-extrabold text-base tracking-tight text-slate-900 block leading-none">CONTRU</span>
+            <span class="font-semibold text-xs tracking-widest text-orange-600 block uppercase">ESTOQUE</span>
+          </div>
+        </div>
+
+        <!-- Links de Navegação -->
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+          <div class="px-3 pb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">Visão Geral</div>
+          <a href="#" data-view="dashboard" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 mr-3 text-orange-500"></i>
+            Dashboard
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">Operações de Estoque</div>
+          <a href="#" data-view="items" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="package" class="w-4 h-4 mr-3"></i>
+            Materiais & Itens
+          </a>
+          <a href="#" data-view="entries" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="arrow-down-left" class="w-4 h-4 mr-3 text-emerald-500"></i>
+            Entradas
+          </a>
+          <a href="#" data-view="exits" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="arrow-up-right" class="w-4 h-4 mr-3 text-orange-500"></i>
+            Saídas
+          </a>
+          <a href="#" data-view="stock" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="layers" class="w-4 h-4 mr-3"></i>
+            Saldo & Ajustes
+          </a>
+          <a href="#" data-view="replenishment" class="nav-link flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <div class="flex items-center">
+              <i data-lucide="alert-triangle" class="w-4 h-4 mr-3 text-amber-500"></i>
+              Reposição & Alertas
+            </div>
+            <span class="px-1.5 py-0.2 text-[10px] font-bold bg-orange-100 text-orange-700 rounded-full">!</span>
+          </a>
+          <a href="#" data-view="inventory" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="clipboard-check" class="w-4 h-4 mr-3 text-blue-500"></i>
+            Inventário
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">Gestão & Inteligência</div>
+          <a href="#" data-view="prices" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="tag" class="w-4 h-4 mr-3 text-purple-500"></i>
+            Gestão de Preços
+          </a>
+          <a href="#" data-view="reports" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="file-bar-chart" class="w-4 h-4 mr-3"></i>
+            Relatórios
+          </a>
+          <a href="#" data-view="pdv" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="monitor" class="w-4 h-4 mr-3 text-indigo-500"></i>
+            Integração PDV
+          </a>
+          <a href="#" data-view="audit" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="shield-alert" class="w-4 h-4 mr-3 text-slate-500"></i>
+            Trilha de Auditoria
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">Administração</div>
+          <a href="#" id="nav-link-admin" data-view="admin" class="nav-link flex items-center px-3 py-2 text-xs font-bold rounded-lg text-orange-700 bg-orange-50/50 hover:bg-orange-100 transition">
+            <i data-lucide="shield" class="w-4 h-4 mr-3 text-orange-600"></i>
+            Painel Admin
+          </a>
+          <a href="#" data-view="structures" class="nav-link flex items-center px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-orange-50 transition">
+            <i data-lucide="folder-tree" class="w-4 h-4 mr-3"></i>
+            Categorias & Locais
+          </a>
+        </nav>
+
+        <!-- Rodapé da Sidebar: Status do Banco de Dados Cloud -->
+        <div class="p-3 border-t border-slate-100 bg-slate-50/70">
+          <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div class="text-[11px] font-medium text-slate-600">Cloud DB: <span class="font-bold text-slate-800">Supabase</span></div>
+          </div>
+          <div class="text-[9px] text-slate-400 mt-0.5">PostgreSQL • v2.1 Corporativo</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Topbar Cabeçalho -->
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 z-20">
+        <div class="flex items-center space-x-3">
+          <button id="mobile-menu-toggle" class="md:hidden text-slate-600 hover:text-slate-900 p-1">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <!-- Breadcrumb -->
+          <div class="flex items-center text-xs font-medium text-slate-500">
+            <span class="hover:text-orange-600 cursor-pointer" onclick="App.navigateTo('dashboard')">CONTRU ESTOQUE</span>
+            <span class="mx-2 text-slate-300">/</span>
+            <span id="current-breadcrumb" class="font-bold text-slate-800">Dashboard Executivo</span>
+          </div>
+        </div>
+
+        <!-- Topbar Ações: Notificações & Perfil do Usuário Autenticado -->
+        <div class="flex items-center space-x-4">
+          <!-- Notificações -->
+          <div class="relative">
+            <button id="notif-button" class="relative p-2 text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition">
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span id="notif-badge" class="hidden absolute top-1 right-1 w-4 h-4 bg-red-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center">0</span>
+            </button>
+            <div id="notif-menu" class="hidden absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
+              <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-800">Alertas Operacionais</span>
+                <button onclick="App.navigateTo('replenishment'); App.toggleNotifMenu(false);" class="text-[11px] text-orange-600 hover:underline">Ver todos</button>
+              </div>
+              <div id="notif-list" class="max-h-64 overflow-y-auto"></div>
+            </div>
+          </div>
+
+          <!-- Menu Dropdown do Usuário Autenticado -->
+          <div class="relative">
+            <button id="btn-header-user-menu" class="flex items-center space-x-2.5 p-1.5 rounded-xl hover:bg-slate-50 border border-slate-200 transition">
+              <img id="header-user-avatar" class="w-7 h-7 rounded-full object-cover border border-orange-500">
+              <div class="text-left hidden sm:block">
+                <div id="header-user-name" class="text-xs font-bold text-slate-800 leading-tight">Usuário</div>
+                <div id="header-user-role" class="text-[10px] text-orange-600 font-semibold">Perfil</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </button>
+
+            <div id="header-user-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-xl py-1 z-50 text-xs">
+              <button onclick="Auth.openProfileModal()" class="w-full px-4 py-2 text-left text-slate-700 hover:bg-orange-50 flex items-center">
+                <i data-lucide="user" class="w-4 h-4 mr-2 text-slate-400"></i> Meu Perfil
+              </button>
+              <button onclick="Auth.openChangePasswordModal()" class="w-full px-4 py-2 text-left text-slate-700 hover:bg-orange-50 flex items-center">
+                <i data-lucide="key" class="w-4 h-4 mr-2 text-slate-400"></i> Alterar Senha
+              </button>
+              <button onclick="App.navigateTo('admin')" class="w-full px-4 py-2 text-left text-slate-700 hover:bg-orange-50 flex items-center">
+                <i data-lucide="settings" class="w-4 h-4 mr-2 text-slate-400"></i> Painel Admin
+              </button>
+              <div class="border-t border-slate-100 my-1"></div>
+              <button onclick="Auth.logout()" class="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center font-bold">
+                <i data-lucide="log-out" class="w-4 h-4 mr-2 text-red-500"></i> Sair do Sistema
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Área de Telas do Sistema -->
+      <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50/50">
+
+        <!-- VIEW: DASHBOARD -->
+        <section id="view-dashboard" class="view-section space-y-6">
+          <!-- KPIs Resumo -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500">Total de Materiais</span>
+                <i data-lucide="package" class="w-4 h-4 text-orange-500"></i>
+              </div>
+              <div id="kpi-total-items" class="text-2xl font-black text-slate-900 mt-2">-</div>
+              <div class="text-[11px] text-slate-400 mt-1"><span id="kpi-active-items" class="font-bold text-emerald-600">-</span> ativos no catálogo</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500">Saldo Físico Total</span>
+                <i data-lucide="layers" class="w-4 h-4 text-blue-500"></i>
+              </div>
+              <div id="kpi-total-stock" class="text-2xl font-black text-slate-900 mt-2">-</div>
+              <div class="text-[11px] text-slate-400 mt-1">unidades em estoque</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500">Valor em Estoque</span>
+                <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-500"></i>
+              </div>
+              <div id="kpi-stock-value" class="text-2xl font-black text-slate-900 mt-2">-</div>
+              <div class="text-[11px] text-slate-400 mt-1">Custo médio ponderado</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500">Alertas de Reposição</span>
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
+              </div>
+              <div class="flex items-baseline space-x-2 mt-2">
+                <div id="kpi-low-stock" class="text-2xl font-black text-amber-600">-</div>
+                <span class="text-xs text-slate-400">baixos</span>
+                <span class="text-slate-300">|</span>
+                <div id="kpi-zero-stock" class="text-2xl font-black text-red-600">-</div>
+                <span class="text-xs text-slate-400">ruptura</span>
+              </div>
+              <div class="text-[11px] text-orange-600 font-semibold mt-1 cursor-pointer" onclick="App.navigateTo('replenishment')">Ver itens críticos &rarr;</div>
+            </div>
+          </div>
+
+          <!-- Ações Rápidas -->
+          <div class="flex flex-wrap gap-2 items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-bold text-slate-700">Ações Rápidas de Operação:</div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="StockModule.openEntryModalForProduct()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+                <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 mr-1.5"></i> Registrar Entrada
+              </button>
+              <button onclick="StockModule.openExitModalForProduct()" class="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 mr-1.5"></i> Registrar Saída
+              </button>
+              <button onclick="ItemsModule.openNewModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+                <i data-lucide="plus" class="w-3.5 h-3.5 mr-1.5"></i> Novo Material
+              </button>
+            </div>
+          </div>
+
+          <!-- Gráficos Gerenciais -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Gráfico 1: Comparativo Entradas x Saídas -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Fluxo Físico de Entradas x Saídas (Últimos 6 Meses)</h3>
+              </div>
+              <div class="h-64">
+                <canvas id="chart-entries-exits"></canvas>
+              </div>
+            </div>
+
+            <!-- Gráfico 2: Valoração por Categoria -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-4">Valoração por Categoria</h3>
+              <div class="h-64 flex items-center justify-center">
+                <canvas id="chart-category-valuation"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Linha Inferior: Alertas Críticos e Últimas Movimentações -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Alertas Críticos -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Alertas de Atenção Imediata</h3>
+                <span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">Ruptura / Mínimo</span>
+              </div>
+              <div id="dashboard-alerts-list" class="space-y-2 max-h-72 overflow-y-auto"></div>
+            </div>
+
+            <!-- Movimentações Recentes -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Últimas Movimentações Registradas</h3>
+                <button onclick="App.navigateTo('entries')" class="text-xs text-orange-600 hover:underline font-semibold">Ver histórico completo &rarr;</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                  <thead>
+                    <tr class="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      <th class="py-2 px-3">Data/Hora</th>
+                      <th class="py-2 px-3">Material</th>
+                      <th class="py-2 px-3">Tipo</th>
+                      <th class="py-2 px-3">Qtd</th>
+                      <th class="py-2 px-3">Origem / Destino</th>
+                      <th class="py-2 px-3">Operador</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-recent-movements-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: MATERIAIS & ITENS -->
+        <section id="view-items" class="view-section hidden space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-black text-slate-900">Catálogo de Materiais & Inclusão</h2>
+              <p id="items-total-counter" class="text-xs text-slate-400">Carregando catálogo...</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="ItemsModule.openNewModal()" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+                <i data-lucide="plus" class="w-4 h-4 mr-1.5"></i> Cadastrar Material
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtros de Busca -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div class="sm:col-span-2 relative">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+              <input type="text" id="items-search-input" placeholder="Buscar por código, nome, descrição ou categoria..." class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+            </div>
+            <div>
+              <select id="items-category-filter" class="select-category w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                <option value="">Todas as Categorias</option>
+              </select>
+            </div>
+            <div>
+              <select id="items-stock-filter" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                <option value="">Todos os Saldos</option>
+                <option value="ESTOQUE_BAIXO">Estoque Baixo</option>
+                <option value="SEM_ESTOQUE">Ruptura (Zerado)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Tabela de Materiais -->
+          <div id="items-table-container" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Código</th>
+                    <th class="py-3 px-3">Material</th>
+                    <th class="py-3 px-3">Categoria</th>
+                    <th class="py-3 px-3">Saldo Atual</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3">Custo Un.</th>
+                    <th class="py-3 px-3">Venda Un.</th>
+                    <th class="py-3 px-3">Localização</th>
+                    <th class="py-3 px-3 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="items-table-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: ENTRADAS -->
+        <section id="view-entries" class="view-section hidden space-y-4">
+          <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-black text-slate-900">Entradas de Materiais em Estoque</h2>
+              <p class="text-xs text-slate-400">Histórico de compras, notas fiscais e recebimentos</p>
+            </div>
+            <button onclick="StockModule.openEntryModalForProduct()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+              <i data-lucide="arrow-down-left" class="w-4 h-4 mr-1.5"></i> Registrar Nova Entrada
+            </button>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Data/Hora</th>
+                    <th class="py-3 px-3">Material</th>
+                    <th class="py-3 px-3">Qtd Entrada</th>
+                    <th class="py-3 px-3">Saldo</th>
+                    <th class="py-3 px-3">Fornecedor / Origem</th>
+                    <th class="py-3 px-3">Doc / NF</th>
+                    <th class="py-3 px-3">Responsável</th>
+                    <th class="py-3 px-3">Observações</th>
+                  </tr>
+                </thead>
+                <tbody id="entries-table-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: SAÍDAS -->
+        <section id="view-exits" class="view-section hidden space-y-4">
+          <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-black text-slate-900">Saídas e Requisições de Materiais</h2>
+              <p class="text-xs text-slate-400">Consumo em obras, requisições internas e perdas</p>
+            </div>
+            <button onclick="StockModule.openExitModalForProduct()" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+              <i data-lucide="arrow-up-right" class="w-4 h-4 mr-1.5"></i> Registrar Nova Saída
+            </button>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Data/Hora</th>
+                    <th class="py-3 px-3">Material</th>
+                    <th class="py-3 px-3">Qtd Saída</th>
+                    <th class="py-3 px-3">Saldo</th>
+                    <th class="py-3 px-3">Destino / Obra</th>
+                    <th class="py-3 px-3">Doc / Requisição</th>
+                    <th class="py-3 px-3">Responsável</th>
+                    <th class="py-3 px-3">Observações</th>
+                  </tr>
+                </thead>
+                <tbody id="exits-table-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: SALDO & AJUSTES -->
+        <section id="view-stock" class="view-section hidden space-y-4">
+          <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-black text-slate-900">Controle de Saldos & Ajustes Manuais</h2>
+              <p class="text-xs text-slate-400">Visão consolidada de saldo físico e acerto com justificativa obrigatória (Regra 4)</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Código</th>
+                    <th class="py-3 px-3">Material</th>
+                    <th class="py-3 px-3">Categoria</th>
+                    <th class="py-3 px-3">Localização</th>
+                    <th class="py-3 px-3">Saldo Físico</th>
+                    <th class="py-3 px-3">Min / Max</th>
+                    <th class="py-3 px-3">Valoração Total</th>
+                    <th class="py-3 px-3 text-right">Ações Rápidas</th>
+                  </tr>
+                </thead>
+                <tbody id="stock-table-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: REPOSIÇÃO & ALERTAS -->
+        <section id="view-replenishment" class="view-section hidden space-y-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-semibold text-slate-500">Materiais com Alerta</span>
+              <div id="replenishment-count-total" class="text-2xl font-black text-amber-600 mt-1">-</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-semibold text-slate-500">Ruptura (Saldo Zerado)</span>
+              <div id="replenishment-count-zero" class="text-2xl font-black text-red-600 mt-1">-</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-semibold text-slate-500">Abaixo do Mínimo</span>
+              <div id="replenishment-count-low" class="text-2xl font-black text-amber-500 mt-1">-</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs font-semibold text-slate-500">Investimento Sugerido</span>
+              <div id="replenishment-total-cost" class="text-2xl font-black text-slate-900 mt-1">-</div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Sugestão de Reposição por Ponto de Pedido</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Gravidade</th>
+                    <th class="py-3 px-3">Material</th>
+                    <th class="py-3 px-3">Saldo Atual</th>
+                    <th class="py-3 px-3">Estoque Mínimo</th>
+                    <th class="py-3 px-3">Estoque Máximo</th>
+                    <th class="py-3 px-3">Sugestão Repor</th>
+                    <th class="py-3 px-3">Custo Estimado</th>
+                    <th class="py-3 px-3 text-right">Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="replenishment-table-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: INVENTÁRIO -->
+        <section id="view-inventory" class="view-section hidden space-y-4">
+          <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-black text-slate-900">Inventários & Contagem Física</h2>
+              <p class="text-xs text-slate-400">Apuração de divergências e reconciliação automática de saldos</p>
+            </div>
+            <button onclick="InventoryModule.openNewInventoryModal()" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+              <i data-lucide="clipboard-plus" class="w-4 h-4 mr-1.5"></i> Abrir Novo Inventário
+            </button>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Código</th>
+                    <th class="py-3 px-3">Título do Inventário</th>
+                    <th class="py-3 px-3">Escopo</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3">Materiais</th>
+                    <th class="py-3 px-3">Divergência Total</th>
+                    <th class="py-3 px-3 text-right">Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="inventories-table-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: PREÇOS -->
+        <section id="view-prices" class="view-section hidden space-y-6">
+          <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-black text-slate-900">Gestão & Histórico de Preços</h2>
+              <p class="text-xs text-slate-400">Controle de margens de lucro e exigência de justificativa de reajuste (Regra 3)</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Código</th>
+                    <th class="py-3 px-3">Material</th>
+                    <th class="py-3 px-3">Preço Custo</th>
+                    <th class="py-3 px-3">Preço Venda</th>
+                    <th class="py-3 px-3">Margem Atual</th>
+                    <th class="py-3 px-3 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="prices-table-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Tabela de Reajustes Recentes -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-100">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Histórico Recente de Reajustes (Auditoria de Preços)</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-2.5 px-3">Data</th>
+                    <th class="py-2.5 px-3">Material</th>
+                    <th class="py-2.5 px-3">Custo Anterior &rarr; Novo</th>
+                    <th class="py-2.5 px-3">Venda Anterior &rarr; Novo</th>
+                    <th class="py-2.5 px-3">Motivo Registrado</th>
+                    <th class="py-2.5 px-3">Usuário</th>
+                  </tr>
+                </thead>
+                <tbody id="prices-recent-history-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: RELATÓRIOS -->
+        <section id="view-reports" class="view-section hidden space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-black text-slate-900">Relatórios Gerenciais de Estoque</h2>
+              <p class="text-xs text-slate-400">Emissão, impressão oficial e exportação de dados em CSV</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="ReportsModule.exportCSV()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition flex items-center">
+                <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Exportar CSV
+              </button>
+              <button onclick="ReportsModule.printReport()" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+                <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Imprimir Relatório
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap gap-3 items-center">
+            <div class="w-64">
+              <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tipo de Relatório</label>
+              <select id="report-type-select" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                <option value="stock_position">Posição Geral de Estoque & Valoração</option>
+                <option value="low_stock">Materiais em Estoque Baixo</option>
+                <option value="zero_stock">Materiais em Ruptura (Zerados)</option>
+                <option value="movements">Extrato Completo de Movimentações</option>
+              </select>
+            </div>
+            <div class="w-64">
+              <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Filtrar Categoria</label>
+              <select id="report-category-filter" class="select-category w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                <option value="">Todas as Categorias</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="report-total-summary"></div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead id="report-results-thead"></thead>
+                <tbody id="report-results-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: INTEGRAÇÃO PDV -->
+        <section id="view-pdv" class="view-section hidden space-y-6">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <h2 class="text-base font-black text-slate-900">Integração PDV (Ponto de Venda)</h2>
+                <span id="pdv-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">ONLINE</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Conexão REST API pronta para sincronizar caixas com baixa automática de estoque</p>
+            </div>
+            <button onclick="PDVModule.triggerManualSync()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition flex items-center">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1.5"></i> Sincronizar Catálogo
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs text-slate-500">Terminal Conectado</span>
+              <div id="pdv-system-name" class="text-sm font-bold text-slate-900 mt-1">-</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs text-slate-500">Última Sincronização</span>
+              <div id="pdv-last-sync" class="text-sm font-bold text-slate-900 mt-1">-</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs text-slate-500">Itens com Código PDV</span>
+              <div id="pdv-configured-items" class="text-sm font-bold text-slate-900 mt-1">-</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span class="text-xs text-slate-500">Vendas Processadas</span>
+              <div id="pdv-sales-count" class="text-sm font-bold text-slate-900 mt-1">-</div>
+            </div>
+          </div>
+
+          <!-- Simulador de Caixa PDV -->
+          <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Simulador de Terminal de Caixa PDV</h3>
+            <p class="text-xs text-slate-500 mb-4">Simule uma venda emitida no PDV para verificar a baixa instantânea em tempo real no CONTRU ESTOQUE.</p>
+            <form onsubmit="PDVModule.simulateSale(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+              <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Selecionar Material Vendido</label>
+                <select id="pdv-sim-product-select" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500"></select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Preço Unitário (R$)</label>
+                <input type="number" step="0.01" id="pdv-sim-unit-price" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Qtd</label>
+                <input type="number" step="1" min="1" id="pdv-sim-qty" value="1" required oninput="PDVModule.recalculateSimTotal()" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+              </div>
+              <input type="hidden" id="pdv-sim-terminal" value="CAIXA-01">
+              <div class="md:col-span-3 flex items-center justify-between bg-orange-50/50 p-3 rounded-lg border border-orange-200">
+                <span class="text-xs text-slate-600 font-medium">Total da Venda do Cupom:</span>
+                <span id="pdv-sim-total" class="text-base font-black text-orange-600">R$ 0,00</span>
+              </div>
+              <button type="submit" class="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs shadow-md shadow-orange-600/20 transition">
+                Processar Venda no Caixa &rarr;
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- VIEW: AUDITORIA -->
+        <section id="view-audit" class="view-section hidden space-y-4">
+          <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-black text-slate-900">Trilha de Auditoria & Compliance</h2>
+              <p class="text-xs text-slate-400">Rastreabilidade completa de todas as operações com snapshot antes e depois</p>
+            </div>
+            <div class="flex space-x-1">
+              <button onclick="AuditModule.filterByAction('')" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded font-medium">Todos</button>
+              <button onclick="AuditModule.filterByAction('ESTOQUE')" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded font-medium">Estoque</button>
+              <button onclick="AuditModule.filterByAction('PRECO')" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded font-medium">Preços</button>
+              <button onclick="AuditModule.filterByAction('INVENTARIO')" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded font-medium">Inventário</button>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Data/Hora</th>
+                    <th class="py-3 px-3">Usuário</th>
+                    <th class="py-3 px-3">Ação</th>
+                    <th class="py-3 px-3">Entidade</th>
+                    <th class="py-3 px-3">Descrição da Operação</th>
+                    <th class="py-3 px-3 text-right">Snapshot</th>
+                  </tr>
+                </thead>
+                <tbody id="audit-table-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: PAINEL DE ADMINISTRAÇÃO (NOVO) -->
+        <section id="view-admin" class="view-section hidden space-y-6">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="p-2 rounded-lg bg-orange-100 text-orange-700">
+                  <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </span>
+                <div>
+                  <h2 class="text-base font-black text-slate-900">Painel de Gestão Corporativa</h2>
+                  <p class="text-xs text-slate-400">Controle de colaboradores, políticas da empresa e diagnóstico do banco em nuvem</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="AdminModule.openNewUserModal()" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center">
+                <i data-lucide="user-plus" class="w-4 h-4 mr-1.5"></i> Novo Colaborador
+              </button>
+            </div>
+          </div>
+
+          <!-- Abas do Painel Admin -->
+          <div class="border-b border-slate-200 bg-white px-4 rounded-xl border shadow-sm">
+            <nav class="flex space-x-6 text-xs font-bold">
+              <button onclick="AdminModule.switchTab('users')" data-tab="users" class="admin-tab-btn py-3.5 border-b-2 border-orange-600 text-orange-600 transition flex items-center">
+                <i data-lucide="users" class="w-4 h-4 mr-2"></i> Gestão de Colaboradores
+              </button>
+              <button onclick="AdminModule.switchTab('company')" data-tab="company" class="admin-tab-btn py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition flex items-center">
+                <i data-lucide="building" class="w-4 h-4 mr-2"></i> Dados da Empresa & Políticas
+              </button>
+              <button onclick="AdminModule.switchTab('diagnostic')" data-tab="diagnostic" class="admin-tab-btn py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition flex items-center">
+                <i data-lucide="database" class="w-4 h-4 mr-2"></i> Diagnóstico Cloud (Supabase)
+              </button>
+            </nav>
+          </div>
+
+          <!-- Conteúdo Aba 1: Colaboradores -->
+          <div id="admin-tab-users" class="admin-tab-content bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-3">Colaborador</th>
+                    <th class="py-3 px-3">Perfil de Acesso</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3">Último Acesso</th>
+                    <th class="py-3 px-3 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Conteúdo Aba 2: Dados da Empresa & Políticas -->
+          <div id="admin-tab-company" class="admin-tab-content hidden bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <form id="form-admin-company" onsubmit="AdminModule.saveCompanySettings(event)" class="space-y-6 max-w-3xl">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Razão Social</label>
+                  <input type="text" id="comp-name" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome Fantasia</label>
+                  <input type="text" id="comp-trade" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">CNPJ</label>
+                  <input type="text" id="comp-cnpj" placeholder="00.000.000/0001-00" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Inscrição Estadual</label>
+                  <input type="text" id="comp-ie" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">E-mail Corporativo</label>
+                  <input type="email" id="comp-email" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Telefone Principal</label>
+                  <input type="text" id="comp-phone" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Endereço Completo</label>
+                  <input type="text" id="comp-address" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+              </div>
+
+              <!-- Políticas Operacionais -->
+              <div class="pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 mb-3">Políticas de Operação & Regras de Negócio</h4>
+                <div class="space-y-3">
+                  <label class="flex items-center">
+                    <input type="checkbox" id="comp-negative-stock" class="rounded border-slate-300 text-orange-600 focus:ring-orange-500 mr-2">
+                    <span class="text-xs text-slate-700 font-medium">Permitir estoque negativo (Aviso: desaconselhado conforme Regra 1 de Integridade)</span>
+                  </label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 mb-1">Margem Padrão de Venda Sugerida (%)</label>
+                      <input type="number" id="comp-default-margin" step="0.1" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 mb-1">Intervalo de Inventário Geral (dias)</label>
+                      <input type="number" id="comp-inventory-days" step="1" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg text-xs shadow-sm transition">
+                Salvar Configurações da Empresa
+              </button>
+            </form>
+          </div>
+
+          <!-- Conteúdo Aba 3: Diagnóstico Cloud Supabase -->
+          <div id="admin-tab-diagnostic" class="admin-tab-content hidden space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs text-slate-500">Provedor Cloud</span>
+                <div id="diag-provider" class="text-base font-black text-orange-600 mt-1">-</div>
+              </div>
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs text-slate-500">Status da Conexão</span>
+                <div id="diag-status" class="text-base font-black text-emerald-600 mt-1">-</div>
+              </div>
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs text-slate-500">Latência do Pool</span>
+                <div id="diag-latency" class="text-base font-black text-slate-900 mt-1">-</div>
+              </div>
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs text-slate-500">Motor do Banco</span>
+                <div id="diag-engine" class="text-xs font-mono font-bold text-slate-700 mt-1 truncate">-</div>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Registros nas Tabelas do Banco</h4>
+              <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
+                <div class="bg-slate-50 p-3 rounded-lg text-center">
+                  <div class="text-[10px] text-slate-400 font-bold uppercase">Materiais</div>
+                  <div id="diag-stat-products" class="text-lg font-black text-slate-800">-</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg text-center">
+                  <div class="text-[10px] text-slate-400 font-bold uppercase">Usuários</div>
+                  <div id="diag-stat-users" class="text-lg font-black text-slate-800">-</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg text-center">
+                  <div class="text-[10px] text-slate-400 font-bold uppercase">Movimentos</div>
+                  <div id="diag-stat-movements" class="text-lg font-black text-slate-800">-</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg text-center">
+                  <div class="text-[10px] text-slate-400 font-bold uppercase">Inventários</div>
+                  <div id="diag-stat-inventories" class="text-lg font-black text-slate-800">-</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg text-center">
+                  <div class="text-[10px] text-slate-400 font-bold uppercase">Auditoria</div>
+                  <div id="diag-stat-audit" class="text-lg font-black text-slate-800">-</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg text-center">
+                  <div class="text-[10px] text-slate-400 font-bold uppercase">Reajustes</div>
+                  <div id="diag-stat-prices" class="text-lg font-black text-slate-800">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: ESTRUTURAS FÍSICAS & CATEGORIAS -->
+        <section id="view-structures" class="view-section hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Categorias -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Categorias de Materiais</h3>
+              </div>
+              <form id="form-new-category" onsubmit="StructuresModule.addCategory(event)" class="flex gap-2">
+                <input type="text" id="new-category-name" placeholder="Nova Categoria..." required class="flex-1 py-1.5 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-orange-500">
+                <input type="text" id="new-category-desc" placeholder="Descrição opcional" class="flex-1 py-1.5 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-orange-500">
+                <button type="submit" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold transition">Adicionar</button>
+              </form>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                  <thead>
+                    <tr class="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase">
+                      <th class="py-2 px-3">Nome</th>
+                      <th class="py-2 px-3">Descrição</th>
+                      <th class="py-2 px-3">Ícone</th>
+                    </tr>
+                  </thead>
+                  <tbody id="categories-table-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Localizações Físicas -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Localizações Físicas no Almoxarifado</h3>
+              </div>
+              <form id="form-new-location" onsubmit="StructuresModule.addLocation(event)" class="grid grid-cols-3 gap-2">
+                <input type="text" id="new-location-name" placeholder="Ex: Galpão B, Corredor 3..." required class="py-1.5 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-orange-500">
+                <select id="new-location-type" class="py-1.5 px-2 border border-slate-200 rounded-lg text-xs outline-none">
+                  <option value="ALMOXARIFADO">Almoxarifado</option>
+                  <option value="GALPAO">Galpão</option>
+                  <option value="PRATELEIRA">Prateleira</option>
+                  <option value="EXTERNO">Externo/Obra</option>
+                </select>
+                <button type="submit" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold transition">Adicionar</button>
+              </form>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                  <thead>
+                    <tr class="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase">
+                      <th class="py-2 px-3">Localização</th>
+                      <th class="py-2 px-3">Tipo</th>
+                      <th class="py-2 px-3">Detalhes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="locations-table-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAIS DO SISTEMA -->
+  <!-- ========================================================================= -->
+
+  <!-- MODAL: CADASTRAR / EDITAR MATERIAL -->
+  <div id="modal-item-form" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 my-8">
+      <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+        <h3 id="modal-item-title" class="text-sm font-black text-slate-900">Cadastrar Novo Material</h3>
+        <button onclick="App.closeModal('modal-item-form')" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-item" onsubmit="ItemsModule.saveItem(event)" class="mt-4 space-y-4">
+        <input type="hidden" id="item-id">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Código Único (SKU)</label>
+            <input type="text" id="item-code" required placeholder="Ex: MAT-0100" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Código de Barras / PDV</label>
+            <input type="text" id="item-pdv-code" placeholder="Ex: 7891234567890" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500 font-mono">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Material</label>
+            <input type="text" id="item-name" required placeholder="Ex: Piso Tátil Alerta 30x30 Amarelo" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Descrição Detalhada & Normas</label>
+            <textarea id="item-description" rows="2" placeholder="Especificações técnicas, normas NBR 9050, dimensões..." class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Categoria</label>
+            <select id="item-category" required class="select-category w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Unidade de Medida</label>
+            <select id="item-unit" required class="select-unit w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Localização Física</label>
+            <select id="item-location" class="select-location w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500"></select>
+          </div>
+          <div id="item-initial-stock-container">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Estoque Inicial (Abertura)</label>
+            <input type="number" step="any" min="0" id="item-initial-stock" value="0" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Estoque Mínimo (Alerta)</label>
+            <input type="number" step="any" min="0" id="item-min-stock" required value="10" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Estoque Máximo</label>
+            <input type="number" step="any" min="0" id="item-max-stock" required value="100" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Preço de Custo (R$)</label>
+            <input type="number" step="0.01" min="0" id="item-cost-price" required value="0.00" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Preço de Venda (R$)</label>
+            <input type="number" step="0.01" min="0" id="item-sale-price" required value="0.00" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL da Imagem / Foto do Produto</label>
+            <input type="url" id="item-image-url" placeholder="https://..." class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+        </div>
+        <div class="flex justify-end space-x-2 pt-4 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-item-form')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold transition">Salvar Material</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: FICHA TÉCNICA / DETALHES DO MATERIAL -->
+  <div id="modal-item-details" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-100 my-8">
+      <div class="flex justify-between items-start pb-4 border-b border-slate-100">
+        <div>
+          <span id="detail-code" class="px-2 py-0.5 rounded font-mono text-xs font-bold bg-orange-100 text-orange-800"></span>
+          <h3 id="detail-name" class="text-base font-black text-slate-900 mt-1"></h3>
+          <p id="detail-desc" class="text-xs text-slate-500 mt-0.5"></p>
+        </div>
+        <button onclick="App.closeModal('modal-item-details')" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+        <div class="h-44 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+          <img id="detail-img" class="w-full h-full object-cover">
+        </div>
+        <div class="md:col-span-2 grid grid-cols-2 gap-3 text-xs">
+          <div class="p-2.5 bg-slate-50 rounded-lg"><span class="text-slate-400 block text-[10px]">Categoria:</span><b id="detail-category" class="text-slate-800"></b></div>
+          <div class="p-2.5 bg-slate-50 rounded-lg"><span class="text-slate-400 block text-[10px]">Localização:</span><b id="detail-location" class="text-slate-800"></b></div>
+          <div class="p-2.5 bg-slate-50 rounded-lg"><span class="text-slate-400 block text-[10px]">Saldo Atual:</span><b id="detail-stock" class="text-slate-900 text-sm"></b></div>
+          <div class="p-2.5 bg-slate-50 rounded-lg"><span class="text-slate-400 block text-[10px]">Mínimo / Máximo:</span><b class="text-slate-800"><span id="detail-min"></span> / <span id="detail-max"></span></b></div>
+          <div class="p-2.5 bg-slate-50 rounded-lg"><span class="text-slate-400 block text-[10px]">Preço Custo:</span><b id="detail-cost" class="text-slate-800"></b></div>
+          <div class="p-2.5 bg-slate-50 rounded-lg"><span class="text-slate-400 block text-[10px]">Preço Venda:</span><b id="detail-sale" class="text-orange-600"></b></div>
+          <div class="p-2.5 bg-slate-50 rounded-lg"><span class="text-slate-400 block text-[10px]">Margem Lucro:</span><b id="detail-margin" class="text-emerald-700"></b></div>
+          <div class="p-2.5 bg-slate-50 rounded-lg"><span class="text-slate-400 block text-[10px]">Valoração Total:</span><b id="detail-valuation" class="text-slate-900"></b></div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Movimentações Recentes deste Material</h4>
+        <div class="max-h-44 overflow-y-auto border border-slate-100 rounded-lg">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+                <th class="py-2 px-2">Data</th>
+                <th class="py-2 px-2">Tipo</th>
+                <th class="py-2 px-2">Qtd</th>
+                <th class="py-2 px-2">Origem/Destino</th>
+                <th class="py-2 px-2">Operador</th>
+              </tr>
+            </thead>
+            <tbody id="detail-movements-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR ENTRADA -->
+  <div id="modal-stock-entry" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-sm font-black text-slate-900 flex items-center text-emerald-600">
+          <i data-lucide="arrow-down-left" class="w-4 h-4 mr-1.5"></i> Registrar Entrada de Estoque
+        </h3>
+        <button onclick="App.closeModal('modal-stock-entry')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-stock-entry" onsubmit="StockModule.submitEntry(event)" class="mt-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Material</label>
+          <select id="entry-product-select" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-emerald-500"></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Quantidade</label>
+            <input type="number" step="any" min="0.01" id="entry-quantity" required placeholder="0" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-emerald-500 font-bold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Custo Unitário (R$)</label>
+            <input type="number" step="0.01" min="0" id="entry-unit-price" placeholder="0.00" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fornecedor / Origem</label>
+          <input type="text" id="entry-supplier" placeholder="Ex: Tátil Brasil Materiais Ltda" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nota Fiscal / Documento</label>
+          <input type="text" id="entry-document" placeholder="Ex: NF-45920" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observações</label>
+          <textarea id="entry-notes" rows="2" placeholder="Lote, validade, condições de entrega..." class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-stock-entry')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold">Confirmar Entrada</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR SAÍDA -->
+  <div id="modal-stock-exit" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-sm font-black text-slate-900 flex items-center text-orange-600">
+          <i data-lucide="arrow-up-right" class="w-4 h-4 mr-1.5"></i> Registrar Saída de Estoque
+        </h3>
+        <button onclick="App.closeModal('modal-stock-exit')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-stock-exit" onsubmit="StockModule.submitExit(event)" class="mt-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Material</label>
+          <select id="exit-product-select" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Quantidade de Saída</label>
+          <input type="number" step="any" min="0.01" id="exit-quantity" required placeholder="0" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-orange-500 font-bold">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Destino / Obra / Requisitante</label>
+          <input type="text" id="exit-destination" required placeholder="Ex: Obra Hospital Central - Pavimento 1" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo / Justificativa</label>
+          <textarea id="exit-notes" rows="2" placeholder="Requisição de materiais, consumo ou perda..." class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-stock-exit')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold">Confirmar Saída</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AJUSTE MANUAL DE SALDO (REGRA 4) -->
+  <div id="modal-stock-adjust" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-sm font-black text-slate-900 flex items-center text-amber-600">
+          <i data-lucide="sliders" class="w-4 h-4 mr-1.5"></i> Ajuste Manual de Saldo
+        </h3>
+        <button onclick="App.closeModal('modal-stock-adjust')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-stock-adjust" onsubmit="StockModule.submitAdjustment(event)" class="mt-4 space-y-3">
+        <input type="hidden" id="adjust-product-id">
+        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs">
+          <div class="text-[10px] uppercase font-bold text-amber-800">Material Selecionado:</div>
+          <div id="adjust-product-code" class="font-bold text-slate-900 mt-0.5"></div>
+          <div class="mt-1 text-slate-600">Saldo Atual no Sistema: <input type="text" id="adjust-current-stock" readonly class="bg-transparent font-bold text-slate-800 border-none p-0 inline w-24"></div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Novo Saldo Real Contado</label>
+          <input type="number" step="any" min="0" id="adjust-new-quantity" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-amber-500 font-bold">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Justificativa Formal Obrigatória (Regra 4)</label>
+          <textarea id="adjust-justification" required rows="3" placeholder="Ex: Quebra acidental no transporte interno, recontagem física após auditoria..." class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-stock-adjust')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold">Gravar Ajuste</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REAJUSTE DE PREÇO (REGRA 3) -->
+  <div id="modal-price-update" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-sm font-black text-slate-900 flex items-center text-purple-600">
+          <i data-lucide="tag" class="w-4 h-4 mr-1.5"></i> Reajuste de Preço
+        </h3>
+        <button onclick="App.closeModal('modal-price-update')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form onsubmit="PricesModule.submitPriceUpdate(event)" class="mt-4 space-y-3">
+        <input type="hidden" id="price-product-id">
+        <div class="p-3 bg-purple-50 rounded-lg border border-purple-200 text-xs">
+          <div class="text-[10px] uppercase font-bold text-purple-800">Material:</div>
+          <div id="price-product-name" class="font-bold text-slate-900 mt-0.5"></div>
+          <div class="mt-1 flex justify-between text-slate-600">
+            <span>Custo Atual: <b id="price-current-cost"></b></span>
+            <span>Venda Atual: <b id="price-current-sale"></b></span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Novo Custo (R$)</label>
+            <input type="number" step="0.01" min="0" id="price-new-cost" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Novo Preço Venda (R$)</label>
+            <input type="number" step="0.01" min="0" id="price-new-sale" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none font-bold">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo do Reajuste Obrigatório (Regra 3)</label>
+          <textarea id="price-reason" required rows="2" placeholder="Ex: Aumento do frete da distribuidora, atualização tabela de fábrica..." class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-price-update')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold">Gravar Reajuste</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTÓRICO DE EVOLUÇÃO DE PREÇOS -->
+  <div id="modal-price-history" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 id="history-modal-product-title" class="text-sm font-black text-slate-900">Evolução de Preço</h3>
+        <button onclick="App.closeModal('modal-price-history')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="h-56 my-4">
+        <canvas id="chart-price-evolution"></canvas>
+      </div>
+      <div class="max-h-44 overflow-y-auto border border-slate-100 rounded-lg">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+              <th class="py-2 px-3">Data</th>
+              <th class="py-2 px-3">Preço Custo</th>
+              <th class="py-2 px-3">Preço Venda</th>
+              <th class="py-2 px-3">Motivo Registrado</th>
+              <th class="py-2 px-3">Responsável</th>
+            </tr>
+          </thead>
+          <tbody id="price-history-table-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ABRIR NOVO INVENTÁRIO -->
+  <div id="modal-new-inventory" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-sm font-black text-slate-900">Abrir Novo Inventário Físico</h3>
+        <button onclick="App.closeModal('modal-new-inventory')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-new-inventory" onsubmit="InventoryModule.submitNewInventory(event)" class="mt-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Título / Identificação</label>
+          <input type="text" id="inv-title" required placeholder="Ex: Inventário Trimestral Q1 Almoxarifado" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Escopo</label>
+          <select id="inv-type" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+            <option value="GERAL">Geral (Todos os Materiais da Empresa)</option>
+            <option value="CATEGORIA">Por Categoria Específica</option>
+            <option value="LOCALIZACAO">Por Localização Física</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Categoria (Se aplicável)</label>
+          <select id="inv-category" class="select-category w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Localização (Se aplicável)</label>
+          <select id="inv-location" class="select-location w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observações de Abertura</label>
+          <textarea id="inv-notes" rows="2" placeholder="Equipe de contagem, turnos..." class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-new-inventory')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold">Criar & Iniciar Contagem</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFERÊNCIA DE INVENTÁRIO -->
+  <div id="modal-inventory-conference" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-2xl border border-slate-100 my-8">
+      <div class="flex justify-between items-start pb-3 border-b border-slate-100">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span id="conf-code" class="px-2 py-0.5 rounded font-mono text-xs font-bold bg-orange-100 text-orange-800"></span>
+            <span id="conf-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800"></span>
+          </div>
+          <h3 id="conf-title" class="text-base font-black text-slate-900 mt-1"></h3>
+          <p id="conf-type" class="text-xs text-slate-500"></p>
+        </div>
+        <button onclick="App.closeModal('modal-inventory-conference')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Resumo Divergências -->
+      <div class="flex items-center justify-between bg-orange-50/70 p-3.5 rounded-xl border border-orange-200 my-4 text-xs">
+        <span id="conf-summary-divergent" class="font-bold text-orange-900"></span>
+        <span id="conf-summary-val" class="font-black text-orange-700 text-sm"></span>
+      </div>
+
+      <div class="max-h-80 overflow-y-auto border border-slate-200 rounded-xl mb-4">
+        <table class="w-full text-left">
+          <thead class="sticky top-0 bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <tr>
+              <th class="py-2.5 px-3">Material</th>
+              <th class="py-2.5 px-3">Saldo Sistema</th>
+              <th class="py-2.5 px-3">Qtd Contada</th>
+              <th class="py-2.5 px-3">Divergência</th>
+              <th class="py-2.5 px-3">Diverg. %</th>
+              <th class="py-2.5 px-3">Impacto (R$)</th>
+            </tr>
+          </thead>
+          <tbody id="conf-items-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+        <button type="button" onclick="App.closeModal('modal-inventory-conference')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Fechar</button>
+        <div class="flex space-x-2">
+          <button type="button" id="btn-save-counts" onclick="InventoryModule.saveCounts()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Salvar Contagens</button>
+          <button type="button" id="btn-finalize-inventory" onclick="InventoryModule.finalizeInventory()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">Finalizar & Reconciliar Estoque</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AUDIT DIFF -->
+  <div id="modal-audit-diff" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <div>
+          <h3 id="audit-diff-action" class="text-xs font-black text-slate-900"></h3>
+          <p id="audit-diff-user" class="text-[10px] text-slate-400"></p>
+        </div>
+        <button onclick="App.closeModal('modal-audit-diff')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p id="audit-diff-desc" class="text-xs text-slate-700 my-3 font-medium"></p>
+      <div class="grid grid-cols-2 gap-3 text-[11px] font-mono">
+        <div>
+          <div class="font-bold text-red-600 uppercase text-[9px] mb-1">Antes da Alteração</div>
+          <pre id="audit-diff-before" class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 overflow-x-auto max-h-48 text-[10px]"></pre>
+        </div>
+        <div>
+          <div class="font-bold text-emerald-600 uppercase text-[9px] mb-1">Após a Alteração</div>
+          <pre id="audit-diff-after" class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 overflow-x-auto max-h-48 text-[10px]"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PERFIL DO USUÁRIO LOGADO -->
+  <div id="modal-user-profile" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center">
+      <img id="profile-modal-avatar" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-orange-500 shadow-sm">
+      <h3 id="profile-modal-name" class="text-sm font-black text-slate-900 mt-3"></h3>
+      <p id="profile-modal-email" class="text-xs text-slate-400"></p>
+      <div class="mt-2">
+        <span id="profile-modal-role" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800"></span>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 text-left">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Permissões do Perfil</div>
+        <div id="profile-modal-perms" class="flex flex-wrap gap-1 max-h-32 overflow-y-auto"></div>
+      </div>
+      <button onclick="App.closeModal('modal-user-profile')" class="mt-5 w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs">Fechar</button>
+    </div>
+  </div>
+
+  <!-- MODAL: ALTERAR MINHA SENHA -->
+  <div id="modal-change-password" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-xs font-black text-slate-900 flex items-center">
+          <i data-lucide="key" class="w-4 h-4 mr-1.5 text-orange-600"></i> Alterar Minha Senha
+        </h3>
+        <button onclick="App.closeModal('modal-change-password')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-change-password" onsubmit="Auth.submitChangePassword(event)" class="mt-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Senha Atual</label>
+          <input type="password" id="chg-current-pass" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nova Senha</label>
+          <input type="password" id="chg-new-pass" required minlength="6" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Confirmar Nova Senha</label>
+          <input type="password" id="chg-confirm-pass" required minlength="6" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-change-password')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold">Salvar Senha</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL ADMIN: NOVO COLABORADOR -->
+  <div id="modal-admin-new-user" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-xs font-black text-slate-900 flex items-center">
+          <i data-lucide="user-plus" class="w-4 h-4 mr-1.5 text-orange-600"></i> Cadastrar Novo Colaborador
+        </h3>
+        <button onclick="App.closeModal('modal-admin-new-user')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-admin-new-user" onsubmit="AdminModule.submitNewUser(event)" class="mt-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome Completo</label>
+          <input type="text" id="adm-user-name" required placeholder="Ex: Lucas Ferreira" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">E-mail Corporativo</label>
+          <input type="email" id="adm-user-email" required placeholder="lucas.estoque@contruestoque.com.br" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Senha Inicial</label>
+          <input type="password" id="adm-user-pass" required placeholder="Mínimo 6 caracteres" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Perfil de Acesso</label>
+          <select id="adm-user-role" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+            <option value="1">Administrador (Acesso Total + Painel)</option>
+            <option value="2">Gestor de Estoque (Operações + Preços + Relatórios)</option>
+            <option value="3">Estoquista (Entradas, Saídas e Inventário)</option>
+            <option value="4">Consulta (Leitura Geral)</option>
+            <option value="5">Financeiro (Preços, Valoração e Relatórios)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL Avatar / Foto</label>
+          <input type="url" id="adm-user-avatar" placeholder="https://..." class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-admin-new-user')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold">Cadastrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL ADMIN: EDITAR COLABORADOR -->
+  <div id="modal-admin-edit-user" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-xs font-black text-slate-900">Editar Dados do Colaborador</h3>
+        <button onclick="App.closeModal('modal-admin-edit-user')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-admin-edit-user" onsubmit="AdminModule.submitEditUser(event)" class="mt-4 space-y-3">
+        <input type="hidden" id="adm-edit-id">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome Completo</label>
+          <input type="text" id="adm-edit-name" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">E-mail</label>
+          <input type="email" id="adm-edit-email" readonly class="w-full py-2 px-3 border border-slate-100 bg-slate-50 text-slate-500 rounded-lg text-xs outline-none font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Perfil de Acesso</label>
+          <select id="adm-edit-role" required class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+            <option value="1">Administrador</option>
+            <option value="2">Gestor de Estoque</option>
+            <option value="3">Estoquista</option>
+            <option value="4">Consulta</option>
+            <option value="5">Financeiro</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Status da Conta</label>
+          <select id="adm-edit-status" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+            <option value="true">Ativo</option>
+            <option value="false">Bloqueado</option>
+          </select>
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-admin-edit-user')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold">Atualizar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL ADMIN: RESETAR SENHA -->
+  <div id="modal-admin-reset-pass" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-xs font-black text-slate-900">Reset de Senha Administrativo</h3>
+        <button onclick="App.closeModal('modal-admin-reset-pass')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-admin-reset-pass" onsubmit="AdminModule.submitResetPassword(event)" class="mt-4 space-y-3">
+        <input type="hidden" id="adm-reset-id">
+        <div class="p-3 bg-slate-50 rounded-lg text-xs text-slate-700">
+          Redefinindo senha para: <b id="adm-reset-user-name" class="text-slate-900 block mt-0.5"></b>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nova Senha Provisória</label>
+          <input type="password" id="adm-reset-pass" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full py-2 px-3 border border-slate-200 rounded-lg text-xs outline-none">
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-admin-reset-pass')" class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold">Redefinir Senha</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Contêiner Flutuante de Toasts -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- SCRIPTS DA APLICAÇÃO -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/auth.js"></script>
+  <script src="/static/js/admin.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+  <script src="/static/js/items.js"></script>
+  <script src="/static/js/stock.js"></script>
+  <script src="/static/js/alerts.js"></script>
+  <script src="/static/js/inventory.js"></script>
+  <script src="/static/js/prices.js"></script>
+  <script src="/static/js/reports.js"></script>
+  <script src="/static/js/pdv.js"></script>
+  <script src="/static/js/audit.js"></script>
+  <script src="/static/js/users.js"></script>
+  <script src="/static/js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Auth.init();
+      App.init();
+    });
+  </script>
+</body>
+</html>
